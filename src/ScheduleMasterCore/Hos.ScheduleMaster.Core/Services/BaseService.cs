@@ -13,18 +13,13 @@ namespace Hos.ScheduleMaster.Core.Services
         public IUnitOfWork _unitOfWork { get; set; }
 
         [Autowired]
-        public RepositoryFactory _repositoryFactory { get; set; }//=> new RepositoryFactory(_unitOfWork);
+        public RepositoryFactory _repositoryFactory { get; set; }
 
         public BaseService()
         {
-            //AutowiredServiceProvider.Autowired(this);
+           
         }
-
-        //public BaseService(IUnitOfWork unitOfWork)
-        //{
-        //    this._unitOfWork = unitOfWork;
-        //}
-
+        
         protected ServiceResponseMessage ServiceResult(ResultStatus status, string msg = "", object data = null)
         {
             return new ServiceResponseMessage(status, msg, data);

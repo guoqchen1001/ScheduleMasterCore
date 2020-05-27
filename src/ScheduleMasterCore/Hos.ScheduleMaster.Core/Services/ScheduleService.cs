@@ -305,11 +305,9 @@ namespace Hos.ScheduleMaster.Core.Services
                 }));
             }
             //事务提交
-            if (_unitOfWork.Commit() > 0)
-            {
-                return ServiceResult(ResultStatus.Success, "任务创建成功!");
-            }
-            return ServiceResult(ResultStatus.Failed, "数据保存失败!");
+            return _unitOfWork.Commit() > 0 ? 
+                ServiceResult(ResultStatus.Success, "任务创建成功!", model.Id) : 
+                ServiceResult(ResultStatus.Failed, "数据保存失败!");
         }
 
         /// <summary>

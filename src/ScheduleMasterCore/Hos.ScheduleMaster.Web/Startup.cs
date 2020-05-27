@@ -69,8 +69,8 @@ namespace Hos.ScheduleMaster.Web
                 b.ExpireTimeSpan = new TimeSpan(2, 0, 0);
             });
             //EF数据库上下文
-            services.AddDbContext<SmDbContext>(option => option.UseMySql(Configuration.GetConnectionString("MysqlConnection")));
-
+           // services.AddDbContext<SmDbContext>(option => option.UseMySql(Configuration.GetConnectionString("MysqlConnection")));
+            services.AddDbContext<SmDbContext>(option => option.UseSqlServer(Configuration.GetConnectionString("SqlServerConnection")));
             //注入Uow依赖
             services.AddScoped<IUnitOfWork, UnitOfWork<SmDbContext>>();
             //自动注册所有业务service
@@ -128,14 +128,4 @@ namespace Hos.ScheduleMaster.Web
             }
         }
     }
-    //public class ApiControllerAuthorizeConvention : IControllerModelConvention
-    //{
-    //    public void Apply(ControllerModel controller)
-    //    {
-    //        if (controller.Filters.Any(x => x is ApiControllerAttribute))
-    //        {
-    //            controller.Filters.Add(new ServiceFilterAttribute(typeof(AccessControlAttribute)));
-    //        }
-    //    }
-    //}
 }

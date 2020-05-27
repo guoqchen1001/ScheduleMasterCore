@@ -13,8 +13,8 @@ namespace Hos.ScheduleMaster.Web.Filters
 {
     public class AccessControlFilter : IActionFilter
     {
-        private IHttpContextAccessor _accessor;
-        private IAccountService _account;
+        private readonly IHttpContextAccessor _accessor;
+        private readonly IAccountService _account;
 
         public AccessControlFilter(IHttpContextAccessor accessor, IAccountService account)
         {
@@ -28,20 +28,18 @@ namespace Hos.ScheduleMaster.Web.Filters
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            //var conn = _accessor.HttpContext.Connection;
-            //if (conn.RemoteIpAddress.Equals(conn.LocalIpAddress))
-            //{
-            //    //同域请求不做验证
-            //    return;
-            //}
-            string userName = context.HttpContext.Request.Headers["ms_auth_user"].FirstOrDefault();
-            string secret = context.HttpContext.Request.Headers["ms_auth_secret"].FirstOrDefault();
+            var conn = _accessor.HttpContext.Connection;
+            if (conn.RemoteIpAddress.Equals(conn.LocalIpAddress))
+                return;
+            
+            var userName = context.HttpContext.Request.Headers["ms_auth_user"].FirstOrDefault();
+            var secret = context.HttpContext.Request.Headers["ms_auth_secret"].FirstOrDefault();
             if (!string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(secret))
             {
                 var user = _account.GetUserbyUserName(userName);
                 if (user != null && user.Status == (int)SystemUserStatus.Available)
                 {
-                    string se = SecurityHelper.MD5($"{userName}{user.Password}{userName}");
+                    var se = SecurityHelper.MD5($"{userName}{user.Password}{userName}");
                     if (se == secret) return;
                 }
             }
