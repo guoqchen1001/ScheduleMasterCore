@@ -37,14 +37,17 @@ namespace Hos.ScheduleMaster.QuartzHost
                 config.Filters.Add(typeof(GlobalExceptionFilter));
             });
             services.AddHealthChecks();
+            services.AddHttpClient();
 
             services.AddDbContextPool<SmDbContext>(option =>
             option.UseSqlServer(Configuration.GetConnectionString("SqlServerConnection"))
             );
+            services.AddTransient<HosLock.IHosLock, HosLock.DatabaseLock>();
             services.AddTransient<Core.Interface.IScheduleService, Core.Services.ScheduleService>();
 
             services.AddHostedService<AppStart.AppLifetimeHostedService>();
             services.AddHostedService<AppStart.ConfigurationRefreshService>();
+            services.AddHostedService<AppStart.DelayedTaskConsumerService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

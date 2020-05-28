@@ -1,4 +1,5 @@
 ﻿using Hos.ScheduleMaster.Core;
+using Hos.ScheduleMaster.Core.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -45,6 +46,12 @@ namespace Hos.ScheduleMaster.QuartzHost.AppStart
         {
             _logger.LogInformation("Hosted service OnStarted");
 
+            string pluginBasePath = ConfigurationCache.PluginPathPrefix.ToPhysicalPath();
+            if (!System.IO.Directory.Exists(pluginBasePath))
+            {
+                System.IO.Directory.CreateDirectory(pluginBasePath);
+            }
+
             //加载全局缓存
             ConfigurationCache.Reload();
             //初始化日志管理器
@@ -57,6 +64,8 @@ namespace Hos.ScheduleMaster.QuartzHost.AppStart
                 ConfigurationCache.SetNode(_configuration);
                 //初始化Quartz
                 Common.QuartzManager.InitScheduler().Wait();
+                //初始化延时队列容器
+                DelayedTask.DelayPlanManager.Init();
             }
         }
 
@@ -65,6 +74,7 @@ namespace Hos.ScheduleMaster.QuartzHost.AppStart
             _logger.LogInformation("Hosted service OnStopping");
 
             Common.QuartzManager.Shutdown(true).Wait();
+            DelayedTask.DelayPlanManager.Clear();
             Core.Log.LogManager.Shutdown();
         }
 

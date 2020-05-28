@@ -17,6 +17,92 @@ namespace Hos.ScheduleMaster.Core.Migrations
                 .HasAnnotation("ProductVersion", "3.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("Hos.ScheduleMaster.Core.Models.ScheduleDelayedEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ContentKey")
+                        .IsRequired()
+                        .HasColumnName("contentkey")
+                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                        .HasMaxLength(100);
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnName("createtime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateUserName")
+                        .HasColumnName("createusername")
+                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                        .HasMaxLength(50);
+
+                    b.Property<DateTime>("DelayAbsoluteTime")
+                        .HasColumnName("delayabsolutetime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DelayTimeSpan")
+                        .HasColumnName("delaytimespan")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ExecuteTime")
+                        .HasColumnName("executetime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("FailedRetrys")
+                        .HasColumnName("failedretrys")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("FinishTime")
+                        .HasColumnName("finishtime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("NotifyBody")
+                        .IsRequired()
+                        .HasColumnName("notifybody")
+                        .HasColumnType("varchar(1000) CHARACTER SET utf8mb4")
+                        .HasMaxLength(1000);
+
+                    b.Property<string>("NotifyDataType")
+                        .IsRequired()
+                        .HasColumnName("notifydatatype")
+                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                        .HasMaxLength(50);
+
+                    b.Property<string>("NotifyUrl")
+                        .IsRequired()
+                        .HasColumnName("notifyurl")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("Remark")
+                        .HasColumnName("remark")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("SourceApp")
+                        .IsRequired()
+                        .HasColumnName("sourceapp")
+                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                        .HasMaxLength(50);
+
+                    b.Property<int>("Status")
+                        .HasColumnName("status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Topic")
+                        .IsRequired()
+                        .HasColumnName("topic")
+                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                        .HasMaxLength(100);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("scheduledelayeds");
+                });
+
             modelBuilder.Entity("Hos.ScheduleMaster.Core.Models.ScheduleEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -269,7 +355,8 @@ namespace Hos.ScheduleMaster.Core.Migrations
                 {
                     b.Property<string>("NodeName")
                         .HasColumnName("nodename")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4")
+                        .HasMaxLength(100);
 
                     b.Property<string>("AccessProtocol")
                         .IsRequired()
@@ -374,7 +461,7 @@ namespace Hos.ScheduleMaster.Core.Migrations
                         new
                         {
                             Key = "Email_SmtpServer",
-                            CreateTime = new DateTime(2020, 4, 11, 17, 17, 21, 363, DateTimeKind.Local).AddTicks(4035),
+                            CreateTime = new DateTime(2020, 5, 15, 10, 44, 1, 64, DateTimeKind.Local).AddTicks(3346),
                             Group = "邮件配置",
                             IsReuired = true,
                             Name = "邮件服务器",
@@ -385,7 +472,7 @@ namespace Hos.ScheduleMaster.Core.Migrations
                         new
                         {
                             Key = "Email_SmtpPort",
-                            CreateTime = new DateTime(2020, 4, 11, 17, 17, 21, 363, DateTimeKind.Local).AddTicks(5841),
+                            CreateTime = new DateTime(2020, 5, 15, 10, 44, 1, 64, DateTimeKind.Local).AddTicks(6246),
                             Group = "邮件配置",
                             IsReuired = true,
                             Name = "邮件服务器端口",
@@ -396,7 +483,7 @@ namespace Hos.ScheduleMaster.Core.Migrations
                         new
                         {
                             Key = "Email_FromAccount",
-                            CreateTime = new DateTime(2020, 4, 11, 17, 17, 21, 363, DateTimeKind.Local).AddTicks(5896),
+                            CreateTime = new DateTime(2020, 5, 15, 10, 44, 1, 64, DateTimeKind.Local).AddTicks(6306),
                             Group = "邮件配置",
                             IsReuired = true,
                             Name = "发件人账号",
@@ -407,7 +494,7 @@ namespace Hos.ScheduleMaster.Core.Migrations
                         new
                         {
                             Key = "Email_FromAccountPwd",
-                            CreateTime = new DateTime(2020, 4, 11, 17, 17, 21, 363, DateTimeKind.Local).AddTicks(5899),
+                            CreateTime = new DateTime(2020, 5, 15, 10, 44, 1, 64, DateTimeKind.Local).AddTicks(6309),
                             Group = "邮件配置",
                             IsReuired = true,
                             Name = "发件人账号密码",
@@ -418,23 +505,67 @@ namespace Hos.ScheduleMaster.Core.Migrations
                         new
                         {
                             Key = "Assembly_ImagePullPolicy",
-                            CreateTime = new DateTime(2020, 4, 11, 17, 17, 21, 363, DateTimeKind.Local).AddTicks(5900),
+                            CreateTime = new DateTime(2020, 5, 15, 10, 44, 1, 64, DateTimeKind.Local).AddTicks(6310),
                             Group = "程序集配置",
                             IsReuired = true,
                             Name = "文件包拉取策略",
-                            Remark = "Always-总是拉取，IfNotPresent-本地没有时拉取",
+                            Remark = "Always-总是拉取，IfNotPresent-本地没有时拉取，默认是Always",
                             Sort = 1,
                             Value = "Always"
                         },
                         new
                         {
                             Key = "Http_RequestTimeout",
-                            CreateTime = new DateTime(2020, 4, 11, 17, 17, 21, 363, DateTimeKind.Local).AddTicks(5902),
+                            CreateTime = new DateTime(2020, 5, 15, 10, 44, 1, 64, DateTimeKind.Local).AddTicks(6312),
                             Group = "HTTP配置",
                             IsReuired = true,
                             Name = "请求超时时间",
                             Remark = "单位是秒，默认值是10",
                             Sort = 1,
+                            Value = "10"
+                        },
+                        new
+                        {
+                            Key = "System_WorkerUnHealthTimes",
+                            CreateTime = new DateTime(2020, 5, 15, 10, 44, 1, 64, DateTimeKind.Local).AddTicks(6314),
+                            Group = "系统配置",
+                            IsReuired = true,
+                            Name = "Worker允许无响应次数",
+                            Remark = "健康检查失败达到最大次数会被下线剔除，默认值是3",
+                            Sort = 1,
+                            Value = "3"
+                        },
+                        new
+                        {
+                            Key = "DelayTask_DelayPattern",
+                            CreateTime = new DateTime(2020, 5, 15, 10, 44, 1, 64, DateTimeKind.Local).AddTicks(6315),
+                            Group = "延时任务配置",
+                            IsReuired = true,
+                            Name = "延迟模式",
+                            Remark = "Relative-相对时间，Absolute-绝对时间，默认值是Relative",
+                            Sort = 1,
+                            Value = "Relative"
+                        },
+                        new
+                        {
+                            Key = "DelayTask_RetryTimes",
+                            CreateTime = new DateTime(2020, 5, 15, 10, 44, 1, 64, DateTimeKind.Local).AddTicks(6317),
+                            Group = "延时任务配置",
+                            IsReuired = true,
+                            Name = "回调失败重试次数",
+                            Remark = "回调失败重试次数，默认值是3",
+                            Sort = 2,
+                            Value = "3"
+                        },
+                        new
+                        {
+                            Key = "DelayTask_RetrySpans",
+                            CreateTime = new DateTime(2020, 5, 15, 10, 44, 1, 64, DateTimeKind.Local).AddTicks(6318),
+                            Group = "延时任务配置",
+                            IsReuired = true,
+                            Name = "回调失败重试间隔",
+                            Remark = "回调失败重试间隔时间(s)，会随着重试次数递增，默认值是10秒",
+                            Sort = 3,
                             Value = "10"
                         });
                 });
@@ -536,7 +667,7 @@ namespace Hos.ScheduleMaster.Core.Migrations
                         new
                         {
                             Id = 1,
-                            CreateTime = new DateTime(2020, 4, 11, 17, 17, 21, 358, DateTimeKind.Local).AddTicks(3038),
+                            CreateTime = new DateTime(2020, 5, 15, 10, 44, 1, 57, DateTimeKind.Local).AddTicks(9626),
                             Password = "96e79218965eb72c92a549dd5a330112",
                             RealName = "admin",
                             Status = 1,

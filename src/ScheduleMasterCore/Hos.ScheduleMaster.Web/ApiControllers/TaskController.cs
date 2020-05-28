@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Hos.ScheduleMaster.Core;
 using Hos.ScheduleMaster.Core.Common;
 using Hos.ScheduleMaster.Core.Dto;
@@ -16,9 +17,6 @@ namespace Hos.ScheduleMaster.Web.ApiControllers
     {
         [Autowired]
         public IScheduleService _scheduleService { get; set; }
-
-        [Autowired]
-        public ISystemService _systemService { get; set; }
 
         /// <summary>
         /// 查询分页数据
@@ -61,12 +59,15 @@ namespace Hos.ScheduleMaster.Web.ApiControllers
         /// <param name="task"></param>
         /// <returns></returns>
         [HttpPost]
-        // [ApiParamValidation]
-        public ServiceResponseMessage Create([FromForm]ScheduleInfo task)
+        public async Task<ServiceResponseMessage> Create([FromForm]ScheduleInfo task)
         {
+            if (!ModelState.IsValid)
+            {
+                return ApiResponse(ResultStatus.ParamError, "非法提交参数");
+            }
             ScheduleEntity main = new ScheduleEntity
             {
-                MetaType = 1,
+                MetaType = task.MetaType,
                 CreateTime = DateTime.Now,
                 CronExpression = task.CronExpression,
                 EndDate = task.EndDate,
@@ -77,15 +78,15 @@ namespace Hos.ScheduleMaster.Web.ApiControllers
                 CustomParamsJson = task.CustomParamsJson,
                 RunLoop = task.RunLoop,
                 TotalRunCount = 0,
-                CreateUserName = task.CreateUserName
+                CreateUserName = CurrentUserName
             };
-            if (task.MetaType == 1)
+            if (task.MetaType == (int)ScheduleMetaType.Assembly)
             {
                 main.AssemblyName = task.AssemblyName;
                 main.ClassName = task.ClassName;
             }
             ScheduleHttpOptionEntity httpOption = null;
-            if (task.MetaType == 2)
+            if (task.MetaType == (int)ScheduleMetaType.Http)
             {
                 httpOption = new ScheduleHttpOptionEntity
                 {
@@ -101,8 +102,8 @@ namespace Hos.ScheduleMaster.Web.ApiControllers
             {
                 if (task.RunNow)
                 {
-                    var start = _scheduleService.Start(main);
-                    return ApiResponse(ResultStatus.Success, "任务创建成功！启动状态为：" + (start.Status == ResultStatus.Success ? "成功" : "失败"), main.Id);
+                    var start = await _scheduleService.Start(main);
+                    return ApiResponse(ResultStatus.Success, "任务创建成功！启动状态为：" + (start.Status == ResultStatus.Success ? "成功" : "失败"), result.Data);
                 }
             }
             return result;
@@ -127,11 +128,10 @@ namespace Hos.ScheduleMaster.Web.ApiControllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public ServiceResponseMessage Start([FromQuery]Guid id)
+        public async Task<ServiceResponseMessage> Start([FromForm]Guid id)
         {
             var task = _scheduleService.QueryById(id);
-            var result = _scheduleService.Start(task);
-            return result;
+            return await _scheduleService.Start(task);
         }
 
         /// <summary>
@@ -140,10 +140,9 @@ namespace Hos.ScheduleMaster.Web.ApiControllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public ServiceResponseMessage Pause([FromQuery]Guid id)
+        public async Task<ServiceResponseMessage> Pause([FromForm]Guid id)
         {
-            var result = _scheduleService.Pause(id);
-            return result;
+            return await _scheduleService.Pause(id);
         }
 
         /// <summary>
@@ -152,10 +151,9 @@ namespace Hos.ScheduleMaster.Web.ApiControllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public ServiceResponseMessage RunOnce([FromQuery]Guid id)
+        public async Task<ServiceResponseMessage> RunOnce([FromForm]Guid id)
         {
-            var result = _scheduleService.RunOnce(id);
-            return result;
+            return await _scheduleService.RunOnce(id);
         }
 
         /// <summary>
@@ -164,10 +162,9 @@ namespace Hos.ScheduleMaster.Web.ApiControllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public ServiceResponseMessage Resume([FromQuery]Guid id)
+        public async Task<ServiceResponseMessage> Resume([FromForm]Guid id)
         {
-            var result = _scheduleService.Resume(id);
-            return result;
+            return await _scheduleService.Resume(id);
         }
 
         /// <summary>
@@ -176,10 +173,9 @@ namespace Hos.ScheduleMaster.Web.ApiControllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public ServiceResponseMessage Stop([FromQuery]Guid id)
+        public async Task<ServiceResponseMessage> Stop([FromForm]Guid id)
         {
-            var result = _scheduleService.Stop(id);
-            return result;
+            return await _scheduleService.Stop(id);
         }
     }
 }

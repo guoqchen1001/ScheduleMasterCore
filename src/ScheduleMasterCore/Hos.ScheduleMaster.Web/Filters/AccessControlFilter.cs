@@ -13,13 +13,13 @@ namespace Hos.ScheduleMaster.Web.Filters
 {
     public class AccessControlFilter : IActionFilter
     {
-        private readonly IHttpContextAccessor _accessor;
-        private readonly IAccountService _account;
+        private IHttpContextAccessor _accessor;
+        private SmDbContext _db;
 
-        public AccessControlFilter(IHttpContextAccessor accessor, IAccountService account)
+        public AccessControlFilter(IHttpContextAccessor accessor, SmDbContext db)
         {
             _accessor = accessor;
-            _account = account;
+            _db = db;
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
@@ -28,18 +28,14 @@ namespace Hos.ScheduleMaster.Web.Filters
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            var conn = _accessor.HttpContext.Connection;
-            if (conn.RemoteIpAddress.Equals(conn.LocalIpAddress))
-                return;
-            
-            var userName = context.HttpContext.Request.Headers["ms_auth_user"].FirstOrDefault();
-            var secret = context.HttpContext.Request.Headers["ms_auth_secret"].FirstOrDefault();
+            string userName = context.HttpContext.Request.Headers["ms_auth_user"].FirstOrDefault();
+            string secret = context.HttpContext.Request.Headers["ms_auth_secret"].FirstOrDefault();
             if (!string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(secret))
             {
-                var user = _account.GetUserbyUserName(userName);
+                var user = _db.SystemUsers.FirstOrDefault(x => x.UserName == userName);
                 if (user != null && user.Status == (int)SystemUserStatus.Available)
                 {
-                    var se = SecurityHelper.MD5($"{userName}{user.Password}{userName}");
+                    string se = SecurityHelper.MD5($"{userName}{user.Password}{userName}");
                     if (se == secret) return;
                 }
             }

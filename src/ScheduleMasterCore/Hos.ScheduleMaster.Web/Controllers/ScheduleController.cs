@@ -22,6 +22,9 @@ namespace Hos.ScheduleMaster.Web.Controllers
         [Autowired]
         public IScheduleService _scheduleService { get; set; }
 
+        [Autowired]
+        public INodeService _nodeService { get; set; }
+
         /// <summary>
         /// 任务列表页面
         /// </summary>
@@ -35,28 +38,44 @@ namespace Hos.ScheduleMaster.Web.Controllers
         /// <summary>
         /// 查询分页数据
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="status"></param>
+        /// <param name="title"></param>
+        /// <param name="workerName"></param>
         /// <returns></returns>
         [HttpGet]
-        public ActionResult QueryPager(string title = "", string workerName = "")
+        public ActionResult QueryPager(int? status, string title = "", string workerName = "")
         {
-            return QueryList(null, title, workerName);
+            return QueryList(null, status, title, workerName);
         }
 
         /// <summary>
         /// 我负责监护的任务列表
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="status"></param>
+        /// <param name="title"></param>
+        /// <param name="workerName"></param>
         /// <returns></returns>
         [HttpGet]
-        public ActionResult QueryCurrentUserPager(string title, string workerName)
+        public ActionResult QueryCurrentUserPager(int? status, string title, string workerName)
         {
-            return QueryList(CurrentAdmin.Id, title, workerName);
+            return QueryList(CurrentAdmin.Id, status, title, workerName);
         }
 
-        private ActionResult QueryList(int? userId, string title, string workerName)
+        /// <summary>
+        /// 通用列表查询
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="status"></param>
+        /// <param name="title"></param>
+        /// <param name="workerName"></param>
+        /// <returns></returns>
+        private ActionResult QueryList(int? userId, int? status, string title, string workerName)
         {
             var pager = new ListPager<ScheduleInfo>(PageIndex, PageSize);
+            if (status.HasValue && status.Value >= 0)
+            {
+                pager.AddFilter(m => m.Status == status.Value);
+            }
             if (!string.IsNullOrEmpty(title))
             {
                 pager.AddFilter(m => m.Title.Contains(title));
@@ -88,7 +107,7 @@ namespace Hos.ScheduleMaster.Web.Controllers
         {
             ViewBag.UserList = _accountService.GetUserAll();
             ViewBag.TaskList = _scheduleService.QueryAll().ToDictionary(x => x.Id, x => x.Title);
-            ViewBag.WorkerList = _scheduleService.QueryWorkerList();
+            ViewBag.WorkerList = _nodeService.QueryWorkerList();
             return View();
         }
 
@@ -117,7 +136,7 @@ namespace Hos.ScheduleMaster.Web.Controllers
         /// <param name="task"></param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult Create(ScheduleInfo task)
+        public async Task<ActionResult> Create(ScheduleInfo task)
         {
             if (!ModelState.IsValid)
             {
@@ -160,7 +179,7 @@ namespace Hos.ScheduleMaster.Web.Controllers
             {
                 if (task.RunNow)
                 {
-                    var start = _scheduleService.Start(main);
+                    var start = await _scheduleService.Start(main);
                     return this.JsonNet(true, "任务创建成功！启动状态为：" + (start.Status == ResultStatus.Success ? "成功" : "失败"), Url.Action("Index"));
                 }
                 return this.JsonNet(true, "任务创建成功！", Url.Action("Index"));
@@ -182,7 +201,7 @@ namespace Hos.ScheduleMaster.Web.Controllers
             }
             ViewBag.UserList = _accountService.GetUserAll();
             ViewBag.TaskList = _scheduleService.QueryAll().ToDictionary(x => x.Id, x => x.Title);
-            ViewBag.WorkerList = _scheduleService.QueryWorkerList();
+            ViewBag.WorkerList = _nodeService.QueryWorkerList();
             ScheduleInfo viewer = ObjectMapper<ScheduleEntity, ScheduleInfo>.Convert(model);
             if (model.MetaType == (int)ScheduleMetaType.Http)
             {
@@ -221,10 +240,10 @@ namespace Hos.ScheduleMaster.Web.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult Start([FromQuery]Guid id)
+        public async Task<ActionResult> Start([FromQuery]Guid id)
         {
             var task = _scheduleService.QueryById(id);
-            var result = _scheduleService.Start(task);
+            var result = await _scheduleService.Start(task);
             return this.JsonNet(result.Status == ResultStatus.Success, result.Message);
         }
 
@@ -234,9 +253,9 @@ namespace Hos.ScheduleMaster.Web.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult Pause([FromQuery]Guid id)
+        public async Task<ActionResult> Pause([FromQuery]Guid id)
         {
-            var result = _scheduleService.Pause(id);
+            var result = await _scheduleService.Pause(id);
             return this.JsonNet(result.Status == ResultStatus.Success, result.Message);
         }
 
@@ -246,9 +265,9 @@ namespace Hos.ScheduleMaster.Web.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult RunOnce([FromQuery]Guid id)
+        public async Task<ActionResult> RunOnce([FromQuery]Guid id)
         {
-            var result = _scheduleService.RunOnce(id);
+            var result = await _scheduleService.RunOnce(id);
             return this.JsonNet(result.Status == ResultStatus.Success, result.Message);
         }
 
@@ -258,9 +277,9 @@ namespace Hos.ScheduleMaster.Web.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult Resume([FromQuery]Guid id)
+        public async Task<ActionResult> Resume([FromQuery]Guid id)
         {
-            var result = _scheduleService.Resume(id);
+            var result = await _scheduleService.Resume(id);
             return this.JsonNet(result.Status == ResultStatus.Success, result.Message);
         }
 
@@ -270,9 +289,9 @@ namespace Hos.ScheduleMaster.Web.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult Stop([FromQuery]Guid id)
+        public async Task<ActionResult> Stop([FromQuery]Guid id)
         {
-            var result = _scheduleService.Stop(id);
+            var result = await _scheduleService.Stop(id);
             return this.JsonNet(result.Status == ResultStatus.Success, result.Message);
         }
 

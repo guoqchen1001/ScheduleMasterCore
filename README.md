@@ -28,18 +28,21 @@ ScheduleMaster是一个开源的分布式任务调度系统，它基于.NET Core
 - [ ] 计划表拆分实现复用；
 - [x] 指定节点运行；
 - [x] 支持http任务配置；
-- [ ] 支持延时任务；
+- [x] 支持延时任务；
 - [ ] 任务监控；
 - [ ] 资源监控；
-- [ ] 支持异常策略配置（失败重试、超时控制等）；
+- [x] 支持异常策略配置（失败重试、超时控制等）；
 - [ ] 接入redis缓存；
+- [ ] 多数据库类型支持；
 - [ ] 用户权限更加精细化；
 - [ ] 报表统计完善；
 
+<br />
 
 ## 技术栈
 ASP.NET Core3.1、EntityFramework Core3.0、Mysql5.7、Quartz.Net、BeyondAdmin、Jquery...
 
+<br />
 
 ## 系统架构图
 ![Architecture ](https://imgkr.cn-bj.ufileos.com/9b61a8f3-fabf-4a87-ad60-1d25bf92fc12.png)
@@ -76,22 +79,42 @@ ASP.NET Core3.1、EntityFramework Core3.0、Mysql5.7、Quartz.Net、BeyondAdmin�
 * 继续执行`docker run -d -p 30002:80 --name="myworker2" ms_worker bash --identity=docker-worker2 --ip=你的宿主机IP --port=30002`运行容器启动worker2。
 * 执行`docker ps`查看各容器运行状态，如果运行不起来请检查容器log。
 
+<br />
 
 ## 效果图
 ![ ](https://imgkr.cn-bj.ufileos.com/11abe3ce-5ffa-4275-9b34-582a0f202934.png)
 
 ![ ](https://imgkr.cn-bj.ufileos.com/c5331959-ca55-4377-9c27-9b3639a3d223.png)
 
+![ ](https://imgkr.cn-bj.ufileos.com/b81930d6-e067-4086-ad1d-df69d9ff1623.png)
+
 ![ ](https://imgkr.cn-bj.ufileos.com/7acd35ed-b634-4ab8-a919-3a43a0f43f87.png)
 
 ![ ](https://imgkr.cn-bj.ufileos.com/d0f48272-ab36-45d9-a093-f14a5bd2d7d1.png)
 
+<br />
 
 ## 文档
 
 - https://github.com/hey-hoho/ScheduleMasterCore/wiki
 
+<br />
 
 ## 交流学习
 
 QQ群：824535095
+
+<br />
+
+## 使用情况
+
+- https://github.com/hey-hoho/ScheduleMasterCore/issues/24
+
+<br />
+
+## 赞赏
+
+金额请随意，赞赏请备注~
+
+![ ](https://imgkr.cn-bj.ufileos.com/a755bba0-0601-4a2b-9078-2466016faaa3.png)
+![ ](https://imgkr.cn-bj.ufileos.com/cdb08098-5fd5-4518-aacb-bf5c310a07cc.png)

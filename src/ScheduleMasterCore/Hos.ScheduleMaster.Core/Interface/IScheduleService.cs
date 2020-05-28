@@ -4,6 +4,7 @@ using Hos.ScheduleMaster.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Hos.ScheduleMaster.Core.Interface
 {
@@ -44,19 +45,6 @@ namespace Hos.ScheduleMaster.Core.Interface
         /// <param name="status"></param>
         /// <returns></returns>
         int QueryScheduleCount(int? status);
-
-        /// <summary>
-        /// 查询指定worker状态数量
-        /// </summary>
-        /// <param name="status"></param>
-        /// <returns></returns>
-        int QueryWorkerCount(int? status);
-
-        /// <summary>
-        /// 查询所有worker列表
-        /// </summary>
-        /// <returns></returns>
-        List<ServerNodeEntity> QueryWorkerList();
 
         /// <summary>
         /// 查询指定运行状态数量
@@ -123,35 +111,35 @@ namespace Hos.ScheduleMaster.Core.Interface
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        ServiceResponseMessage Start(ScheduleEntity task);
+        Task<ServiceResponseMessage> Start(ScheduleEntity task);
 
         /// <summary>
         /// 暂停一个任务
         /// </summary>
         /// <param name="sid"></param>
         /// <returns></returns>
-        ServiceResponseMessage Pause(Guid sid);
+        Task<ServiceResponseMessage> Pause(Guid sid);
 
         /// <summary>
         /// 恢复一个任务
         /// </summary>
         /// <param name="sid"></param>
         /// <returns></returns>
-        ServiceResponseMessage Resume(Guid sid);
+        Task<ServiceResponseMessage> Resume(Guid sid);
 
         /// <summary>
         /// 执行一次任务
         /// </summary>
         /// <param name="sid"></param>
         /// <returns></returns>
-        ServiceResponseMessage RunOnce(Guid sid);
+        Task<ServiceResponseMessage> RunOnce(Guid sid);
 
         /// <summary>
         /// 停止一个任务
         /// </summary>
         /// <param name="sid"></param>
         /// <returns></returns>
-        ServiceResponseMessage Stop(Guid sid);
+        Task<ServiceResponseMessage> Stop(Guid sid);
 
         /// <summary>
         /// 删除一个任务
@@ -189,5 +177,6 @@ namespace Hos.ScheduleMaster.Core.Interface
         /// <param name="result"></param>
         /// <returns></returns>
         bool UpdateRunTrace(Guid traceId, double timeSpan, ScheduleRunResult result);
+
     }
 }
