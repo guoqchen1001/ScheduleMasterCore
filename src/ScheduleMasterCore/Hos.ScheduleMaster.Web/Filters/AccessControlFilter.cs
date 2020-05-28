@@ -28,6 +28,7 @@ namespace Hos.ScheduleMaster.Web.Filters
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
+            
             string userName = context.HttpContext.Request.Headers["ms_auth_user"].FirstOrDefault();
             string secret = context.HttpContext.Request.Headers["ms_auth_secret"].FirstOrDefault();
             if (!string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(secret))

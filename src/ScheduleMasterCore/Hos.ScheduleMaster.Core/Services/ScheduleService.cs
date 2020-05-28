@@ -557,30 +557,33 @@ namespace Hos.ScheduleMaster.Core.Services
         public ServiceResponseMessage Delete(Guid sid)
         {
             var task = QueryById(sid);
-            if (task != null && task.Status != (int)ScheduleStatus.Deleted)
+            
+            if (task == null) 
+                return ServiceResult(ResultStatus.Failed, "调度任务不存在，不允许删除!");
+            
+            if (task.Status == (int) ScheduleStatus.Deleted)
+                return ServiceResult(ResultStatus.Failed, "调度任务已删除，不允许再次删除!");
+            
+            
+            if (task.Status != (int) ScheduleStatus.Stop) 
+                return ServiceResult(ResultStatus.Failed, "调度任务状态未停止，不允许删除!");
+            
+            //停止状态下的才能删除
+            _repositoryFactory.Schedules.UpdateBy(m => m.Id == task.Id, m => new ScheduleEntity
             {
-                if (task.Status == (int)ScheduleStatus.Stop)
-                {
-                    //停止状态下的才能删除
-                    _repositoryFactory.Schedules.UpdateBy(m => m.Id == task.Id, m => new ScheduleEntity
-                    {
-                        Status = (int)ScheduleStatus.Deleted,
-                        NextRunTime = null
-                    });
-                    //删除关联数据
-                    _repositoryFactory.ScheduleHttpOptions.DeleteBy(x => x.ScheduleId == sid);
-                    _repositoryFactory.ScheduleExecutors.DeleteBy(x => x.ScheduleId == sid);
-                    _repositoryFactory.ScheduleKeepers.DeleteBy(x => x.ScheduleId == sid);
-                    _repositoryFactory.ScheduleLocks.DeleteBy(x => x.ScheduleId == sid);
-                    _repositoryFactory.ScheduleReferences.DeleteBy(x => x.ScheduleId == sid || x.ChildId == sid);
-                    if (_unitOfWork.Commit() > 0)
-                    {
-                        return ServiceResult(ResultStatus.Success, "任务已删除!");
-                    }
-                    return ServiceResult(ResultStatus.Failed, "任务删除失败!");
-                }
-            }
-            return ServiceResult(ResultStatus.Failed, "当前任务状态下不能删除!");
+                Status = (int)ScheduleStatus.Deleted,
+                NextRunTime = null
+            });
+            //删除关联数据
+            _repositoryFactory.ScheduleHttpOptions.DeleteBy(x => x.ScheduleId == sid);
+            _repositoryFactory.ScheduleExecutors.DeleteBy(x => x.ScheduleId == sid);
+            _repositoryFactory.ScheduleKeepers.DeleteBy(x => x.ScheduleId == sid);
+            _repositoryFactory.ScheduleLocks.DeleteBy(x => x.ScheduleId == sid);
+            _repositoryFactory.ScheduleReferences.DeleteBy(x => x.ScheduleId == sid || x.ChildId == sid);
+            
+            return _unitOfWork.Commit() > 0 ? 
+                ServiceResult(ResultStatus.Success, "任务已删除!") : 
+                ServiceResult(ResultStatus.Failed, "任务删除失败!");
         }
 
         /// <summary>

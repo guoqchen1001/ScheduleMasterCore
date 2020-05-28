@@ -1,26 +1,29 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Hos.ScheduleMaster.Core;
 using Hos.ScheduleMaster.Core.Dto;
 using Hos.ScheduleMaster.Core.Interface;
 using Hos.ScheduleMaster.Core.Models;
+using Hos.ScheduleMaster.Web.Controllers;
 using Hos.ScheduleMaster.Web.Extension;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Hos.ScheduleMaster.Web.Controllers
+namespace Hos.ScheduleMaster.Web.ApiControllers
 {
-    [ApiController]
     [Route("/[controller]/[action]")]
-    public class ScheduleApiController: AdminController
+    [ApiController]
+    public class ScheduleApiController: ControllerBase
     {
         [Autowired]
         public IScheduleService _scheduleService { get; set; }
         
        [HttpPost]
-       [AllowAnonymous]
-        public JsonNetResult Create(ScheduleInfo task)
+       public async Task<ServiceResponseMessage> Create(ScheduleInfo task)
         {
-            var admin = CurrentAdmin;
             var main = new ScheduleEntity
             {
                 MetaType = task.MetaType,
@@ -62,31 +65,29 @@ namespace Hos.ScheduleMaster.Web.Controllers
             }
             catch (Exception e)
             {
-                return this.JsonNet(false, e.Message);
+                return ApiResponse(ResultStatus.Illegal, e.Message);
             }
             
             
-            if (result.Status != ResultStatus.Success) return this.JsonNet(false);
+            if (result.Status != ResultStatus.Success) 
+                return ApiResponse(ResultStatus.Failed, "创建任务失败");
 
-            if (!task.RunNow) return this.JsonNet(true, "任务创建成功！", 
+            if (!task.RunNow) return ApiResponse(ResultStatus.Success, "任务创建成功！", 
                 data: new {Id = result.Data});
             
-            var start = _scheduleService.Start(main);
+            var start = await _scheduleService.Start(main);
             
-            return this.JsonNet(true, 
+            return ApiResponse(ResultStatus.Success, 
                 "任务创建成功！启动状态为：" + (start.Status == ResultStatus.Success ? "成功" : "失败"), 
                 data: new {Id = result.Data});
         }
 
         [HttpPost]
-        [AllowAnonymous]
-        public JsonNetResult Update(ScheduleInfo task)
+        public ServiceResponseMessage Update(ScheduleInfo task)
         {
             var result = _scheduleService.Edit(task);
-            
-            return result.Status == ResultStatus.Success ? 
-                this.JsonNet(true, "任务编辑成功", data: new {Id = task.Id}) : 
-                this.JsonNet(false, $"任务编辑失败: {result.Message}",data: new {Id = task.Id});
+            result.Data = new {id = task.Id};
+            return result;
         }
         
         /// <summary>
@@ -95,13 +96,25 @@ namespace Hos.ScheduleMaster.Web.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost]
-        [AllowAnonymous]
-        public ActionResult Delete(Guid id)
+        public ServiceResponseMessage Delete([FromBody] Guid id)
         {
-            var result = _scheduleService.Delete(id);
+            var task = _scheduleService.QueryById(id);
             
-            return this.JsonNet(result.Status == ResultStatus.Success, result.Message);
+            return task == null || task.Status == (int) ScheduleStatus.Deleted ? 
+                ApiResponse(ResultStatus.Success, "调度任务不存在或已删除，不允许删除!") : 
+                _scheduleService.Delete(id);
         }
+
+        /// <summary>
+        /// 接口统一的返回消息
+        /// </summary>
+        /// <returns></returns>
+        private ServiceResponseMessage ApiResponse(ResultStatus status, string message, object data = null)
+        {
+            return new ServiceResponseMessage(status, message, data);
+        }
+        
+       
 
     }
 }
