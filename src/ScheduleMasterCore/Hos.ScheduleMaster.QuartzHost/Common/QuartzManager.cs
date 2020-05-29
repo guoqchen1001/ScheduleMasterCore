@@ -370,7 +370,10 @@ namespace Hos.ScheduleMaster.QuartzHost.Common
                         task.NextRunTime = TimeZoneInfo.ConvertTimeFromUtc(trigger.GetNextFireTimeUtc().Value.UtcDateTime, TimeZoneInfo.Local);
                         await db.SaveChangesAsync();
                     }
+                    
+                    
                 }
+                
             }
             catch (Exception ex)
             {

@@ -117,7 +117,7 @@ namespace Hos.ScheduleMaster.QuartzHost.Common
         private async Task UpdateRunTrace(Guid traceId, double elapsed, ScheduleRunResult result)
         {
             if (traceId == Guid.Empty) return;
-            await _db.Database.ExecuteSqlRawAsync($"update scheduletraces set result={(int)result},elapsedtime={elapsed},endtime=now() where traceid='{traceId}'");
+            await _db.Database.ExecuteSqlRawAsync($"update scheduletraces set result={(int)result},elapsedtime={elapsed},endtime=GetDate() where traceid='{traceId}'");
         }
     }
 }

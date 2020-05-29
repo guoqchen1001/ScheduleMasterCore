@@ -121,8 +121,8 @@ namespace Hos.ScheduleMaster.QuartzHost.DelayedTask
             Guid sid = Guid.Parse(plan.Key);
             Guid traceId = Guid.NewGuid();
 
-            string insertTraceSql = "insert into scheduletraces values('{0}','{1}','{2}',now(),'0001-01-01',0,0)";
-            string updateTraceSql = "update scheduletraces set result={0},elapsedtime={1},endtime=now() where traceid='{2}'";
+            string insertTraceSql = "insert into scheduletraces values('{0}','{1}','{2}',GetDate(),'0001-01-01',0,0)";
+            string updateTraceSql = "update scheduletraces set result={0},elapsedtime={1},endtime=GetDate() where traceid='{2}'";
             using (var scope = new ScopeDbContext())
             {
                 var db = scope.GetDbContext();
