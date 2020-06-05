@@ -77,10 +77,11 @@ namespace Hos.ScheduleMaster.Web.ApiControllers
             
             var start = await _scheduleService.Start(main);
             
-            return ApiResponse(ResultStatus.Success, 
+            var resp = ApiResponse(ResultStatus.Success, 
                 "任务创建成功！启动状态为：" + (start.Status == ResultStatus.Success ? "成功" : "失败"), 
                 data: new {Id = result.Data});
-         }
+            return resp;
+        }
 
         [HttpPost]
         public ServiceResponseMessage Update(ScheduleInfo task)
@@ -94,10 +95,19 @@ namespace Hos.ScheduleMaster.Web.ApiControllers
         public async Task<ServiceResponseMessage> Save(ScheduleInfo task)
         {
             var schedule = _scheduleService.QueryById(task.Id);
-            if (schedule == null || schedule.Status == (int)ScheduleStatus.Deleted)
-                return await Create(task);
+            if (schedule == null || schedule.Status == (int) ScheduleStatus.Deleted)
+            {
+                var resp =  await Create(task);
+                return resp;
+            }
+            else
+            {
+                var resp = Update(task);
+                return resp;
+            }
+               
             
-            return Update(task);
+            
         }
         
         /// <summary>

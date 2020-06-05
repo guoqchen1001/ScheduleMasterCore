@@ -66,36 +66,41 @@ namespace Hos.ScheduleMaster.QuartzHost.HosSchedule
             var client = new RestClient(HttpOption.RequestUrl);
             var request = new RestRequest(GetRestSharpMethod(HttpOption.Method));
             var headers = HosScheduleFactory.ConvertParamsJson(HttpOption.Headers);
-            foreach (var item in headers)
+            foreach (var (key, value) in headers)
             {
-                request.AddHeader(item.Key, item.Value.ToString());
+                request.AddHeader(key, value.ToString());
             }
             request.AddHeader("content-type", HttpOption.ContentType);
             request.Timeout = 10000;
-            int config = ConfigurationCache.GetField<int>("Http_RequestTimeout");
+            var config = ConfigurationCache.GetField<int>("Http_RequestTimeout");
             if (config > 0)
             {
                 request.Timeout = config * 1000;
             }
-            string requestBody = string.Empty;
-            if (HttpOption.ContentType == "application/json")
+            var requestBody = string.Empty;
+            
+            switch (HttpOption.ContentType)
             {
-                requestBody = HttpOption.Body.Replace("\r\n", "");
-            }
-            else if (HttpOption.ContentType == "application/x-www-form-urlencoded")
-            {
-                var formData = HosScheduleFactory.ConvertParamsJson(HttpOption.Body);
-                requestBody = string.Join('&', formData.Select(x => $"{x.Key}={System.Net.WebUtility.UrlEncode(x.Value.ToString())}"));
-                if (request.Method == Method.GET && formData.Count > 0)
+                case "application/json" when HttpOption.Body != null:
+                    requestBody = HttpOption.Body.Replace("\r\n", "");
+                    break;
+                case "application/x-www-form-urlencoded" when HttpOption.Body != null:
                 {
-                    client.BaseUrl = new Uri($"{HttpOption.RequestUrl}?{requestBody}");
+                    var formData = HosScheduleFactory.ConvertParamsJson(HttpOption.Body);
+                    requestBody = string.Join('&', formData.Select(x => $"{x.Key}={System.Net.WebUtility.UrlEncode(x.Value.ToString())}"));
+                    if (request.Method == Method.GET && formData.Count > 0)
+                    {
+                        client.BaseUrl = new Uri($"{HttpOption.RequestUrl}?{requestBody}");
+                    }
+
+                    break;
                 }
             }
             if (request.Method != Method.GET)
             {
                 request.AddParameter(HttpOption.ContentType, requestBody, ParameterType.RequestBody);
             }
-            IRestResponse response = client.Execute(request);
+            var response = client.Execute(request);
             return response;
         }
 
