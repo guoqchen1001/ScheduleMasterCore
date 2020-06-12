@@ -92,10 +92,14 @@ namespace Hos.ScheduleMaster.QuartzHost.Common
 
         public static Dictionary<string, object> ConvertParamsJson(string source)
         {
-            Dictionary<string, object> result = new Dictionary<string, object>();
+           var result = new Dictionary<string, object>();
             try
             {
-                List<ScheduleParam> list = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ScheduleParam>>(source);
+                var list = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ScheduleParam>>(source);
+                
+                if (list == null)
+                    return result;
+                
                 foreach (var item in list)
                 {
                     result[item.ParamKey] = item.ParamValue;
